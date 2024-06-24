@@ -1,23 +1,28 @@
+import { config } from "../config"
+
 type clientEvents = 'trigger_update'
 type serverEvents = 'update_jobs_list'
 
 class WebSocketManager {
     clientSocket: WebSocket
-    eventsHandlers: { [key: string]: () => void }
+    eventsHandlers: { [key: string]: (() => void) | null }
 
     constructor() {
-        this.clientSocket  = new WebSocket(`${process.env.REACT_APP_JOBS_API_URL}/ws`)
+        this.clientSocket  = new WebSocket(`${config.liveUpdateUrl}/ws`)
         this.eventsHandlers = {}
         this.clientSocket.addEventListener("message", event => {
             const eventType = event.data;
             if (eventType in this.eventsHandlers) {
-                console.log(`handling ${eventType}`)
-                this.eventsHandlers[eventType]()
+                const eventHandler = this.eventsHandlers[eventType];
+                if (eventHandler !== null) {
+                    eventHandler()
+                }
+                
             }
           });
     }
 
-    addEventHandler(eventType: serverEvents, handler: () => void) {
+    addEventHandler(eventType: serverEvents, handler: (() => void) | null) {
         this.eventsHandlers[eventType] = handler;
     }
 

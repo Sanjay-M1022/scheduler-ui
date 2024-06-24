@@ -27,6 +27,9 @@ export const JobsTable = () => {
     clientWebSocket.addEventHandler('update_jobs_list', () =>
       setShouldUpdateList(true)
     );
+    return () => {
+      clientWebSocket.addEventHandler('update_jobs_list', null);
+    };
   }, []);
 
   useEffect(() => {
